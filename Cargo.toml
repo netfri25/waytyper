@@ -1,0 +1,10 @@
+[package]
+name = "waytyper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wayland-backend = "0.3.15"
+wayland-client = "0.31.14"
+wayland-protocols = { version = "0.32.12", features = ["unstable", "client"] }
+wayland-scanner = "0.31.10"
