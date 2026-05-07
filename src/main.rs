@@ -34,8 +34,11 @@ fn main() {
     event_queue.roundtrip(&mut state).unwrap();
 }
 
-
-fn construct_state(conn: &Connection, state_event_queue: &mut EventQueue<State>, text: String) -> Option<State> {
+fn construct_state(
+    conn: &Connection,
+    state_event_queue: &mut EventQueue<State>,
+    text: String,
+) -> Option<State> {
     let mut event_queue = conn.new_event_queue();
 
     // send `get_registry` request
@@ -71,6 +74,7 @@ impl Dispatch<zwp_input_method_v2::ZwpInputMethodV2, ()> for State {
             return;
         };
 
+        // commit the string only after the `Event::Done` is received
         proxy.commit_string(std::mem::take(&mut state.text));
         proxy.commit(0);
     }
