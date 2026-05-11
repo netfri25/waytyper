@@ -75,8 +75,16 @@ impl Dispatch<zwp_input_method_v2::ZwpInputMethodV2, ()> for State {
         };
 
         // commit the string only after the `Event::Done` is received
-        proxy.commit_string(std::mem::take(&mut state.text));
-        proxy.commit(0);
+        let mut leftover = state.text.as_str();
+
+        // can commit a maximum of 4000 bytes, so split the string into chunks
+        while !leftover.is_empty() {
+            let len = leftover.floor_char_boundary(4000);
+            let text;
+            (text, leftover) = leftover.split_at(len);
+            proxy.commit_string(text.into());
+            proxy.commit(0);
+        }
     }
 }
 
