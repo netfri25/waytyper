@@ -24,11 +24,9 @@ fn main() {
         .input_method_manager
         .get_input_method(&state.seat, &event_queue.handle(), ());
 
-    // get the input method
-    event_queue.roundtrip(&mut state).unwrap();
-
-    // process the events from the input method
-    event_queue.roundtrip(&mut state).unwrap();
+    while !state.typed {
+        event_queue.roundtrip(&mut state).unwrap();
+    }
 
     // cleanup
     event_queue.roundtrip(&mut state).unwrap();
@@ -59,6 +57,7 @@ struct State {
     seat: wl_seat::WlSeat,
     input_method_manager: zwp_input_method_manager_v2::ZwpInputMethodManagerV2,
     text: String,
+    typed: bool,
 }
 
 impl Dispatch<zwp_input_method_v2::ZwpInputMethodV2, ()> for State {
@@ -85,6 +84,8 @@ impl Dispatch<zwp_input_method_v2::ZwpInputMethodV2, ()> for State {
             proxy.commit_string(text.into());
             proxy.commit(0);
         }
+
+        state.typed = true;
     }
 }
 
@@ -105,6 +106,7 @@ impl StateConstructor {
             seat,
             input_method_manager,
             text,
+            typed: false,
         })
     }
 }
